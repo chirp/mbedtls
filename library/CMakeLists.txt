@@ -1,69 +1,81 @@
-option(USE_STATIC_MBEDTLS_LIBRARY "Build mbed TLS static library." ON)
+option(USE_STATIC_MBEDTLS_LIBRARY "Build mbed TLS static library." OFF)
 option(USE_SHARED_MBEDTLS_LIBRARY "Build mbed TLS shared library." OFF)
 option(LINK_WITH_PTHREAD "Explicitly link mbed TLS library to pthread." OFF)
 
-set(src_crypto
+# Object name in the cmake project
+set(OBJECT_NAME mbedtls)
+
+# Object file name in the file manager
+set(OBJECT_FILE_NAME _${OBJECT_NAME}_all_${VARIANT})
+
+# Source list for Mbedtls
+set(CHIRP_MBEDTLS_SRC)
+
+# Include list for Mbedtls
+set(CHIRP_MBEDTLS_INCLUDE)
+
+set(CHIRP_MBEDTLS_SRC ${CHIRP_MBEDTLS_SRC}
     aes.c
-    aesni.c
-    arc4.c
-    aria.c
+#    aesni.c
+#    arc4.c
+#    aria.c
     asn1parse.c
     asn1write.c
     base64.c
     bignum.c
-    blowfish.c
-    camellia.c
-    ccm.c
-    chacha20.c
-    chachapoly.c
+#    blowfish.c
+#    camellia.c
+#    ccm.c
+#    chacha20.c
+#    chachapoly.c
     cipher.c
     cipher_wrap.c
-    cmac.c
+#    cmac.c
     ctr_drbg.c
-    des.c
-    dhm.c
-    ecdh.c
-    ecdsa.c
-    ecjpake.c
-    ecp.c
-    ecp_curves.c
+#    des.c
+#    dhm.c
+#    ecdh.c
+#    ecdsa.c
+#    ecjpake.c
+#    ecp.c
+#    ecp_curves.c
     entropy.c
     entropy_poll.c
     error.c
-    gcm.c
-    havege.c
-    hkdf.c
-    hmac_drbg.c
+#    gcm.c
+#    havege.c
+#    hkdf.c
+#    hmac_drbg.c
     md.c
-    md2.c
-    md4.c
-    md5.c
+#    md2.c
+#    md4.c
+#    md5.c
     md_wrap.c
-    memory_buffer_alloc.c
-    nist_kw.c
+#    memory_buffer_alloc.c
+#    nist_kw.c
     oid.c
-    padlock.c
-    pem.c
+#    padlock.c
+#    pem.c
     pk.c
     pk_wrap.c
-    pkcs12.c
-    pkcs5.c
+#    pkcs12.c
+#    pkcs5.c
     pkparse.c
-    pkwrite.c
-    platform.c
+#    pkwrite.c
+#    platform.c
     platform_util.c
-    poly1305.c
-    ripemd160.c
+#    poly1305.c
+#    ripemd160.c
     rsa.c
     rsa_internal.c
-    sha1.c
+#    sha1.c
     sha256.c
-    sha512.c
-    threading.c
-    timing.c
+#    sha512.c
+#    threading.c
+#    timing.c
     version.c
     version_features.c
-    xtea.c
+#    xtea.c
 )
 
 set(src_x509
@@ -89,6 +101,21 @@ set(src_tls
     ssl_ticket.c
     ssl_tls.c
 )
+
+# Convert the relative path to an absolute one - for the include propagation
+get_filename_component(INC ../include ABSOLUTE)
+
+set(CHIRP_MBEDTLS_INCLUDE ${CHIRP_MBEDTLS_INCLUDE} ${INC})
+
+# Create the object gathering
+add_library(${OBJECT_FILE_NAME} OBJECT ${CHIRP_MBEDTLS_SRC})
+
+# Propagate object dependencies to the top level
+set(CHIRP_CRYPTO_OBJECT ${CHIRP_CRYPTO_OBJECT} ${OBJECT_FILE_NAME} PARENT_SCOPE)
+
+target_include_directories(${OBJECT_FILE_NAME} PRIVATE ${CHIRP_MBEDTLS_INCLUDE})
+
+set(CHIRP_CRYPTO_INCLUDE ${CHIRP_CRYPTO_INCLUDE} ${CHIRP_MBEDTLS_INCLUDE} PARENT_SCOPE)
 
 if(CMAKE_COMPILER_IS_GNUCC)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wmissing-declarations -Wmissing-prototypes")
@@ -132,7 +159,7 @@ if(LINK_WITH_PTHREAD)
 endif()
 
 if (NOT USE_STATIC_MBEDTLS_LIBRARY AND NOT USE_SHARED_MBEDTLS_LIBRARY)
-    message(FATAL_ERROR "Need to choose static or shared mbedtls build!")
+#    message(FATAL_ERROR "Need to choose static or shared mbedtls build!")
 endif(NOT USE_STATIC_MBEDTLS_LIBRARY AND NOT USE_SHARED_MBEDTLS_LIBRARY)
 
 if(USE_STATIC_MBEDTLS_LIBRARY AND USE_SHARED_MBEDTLS_LIBRARY)
