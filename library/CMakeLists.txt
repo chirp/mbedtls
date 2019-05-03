@@ -40,7 +40,7 @@ set(CHIRP_MBEDTLS_SRC ${CHIRP_MBEDTLS_SRC}
 #    ecp.c
 #    ecp_curves.c
     entropy.c
-#    entropy_poll.c
+    entropy_poll.c
     error.c
 #    gcm.c
 #    havege.c
